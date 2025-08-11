@@ -10,7 +10,6 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import time
-import os
 
 app = Flask(__name__)
 
@@ -18,8 +17,6 @@ app = Flask(__name__)
 THRESHOLD = 0.55
 ua = UserAgent()
 
-# ✅ Load models only ONCE globally
-model = SentenceTransformer("all-mpnet-base-v2")
 
 edu_rank = {
         "no education": 0,
@@ -68,8 +65,6 @@ def index():
         except:
             user_skills = []
 
-        # ✅ Precompute embeddings for user skills ONCE
-        user_skill_embeddings = [model.encode(skill, convert_to_tensor=False) for skill in user_skills]
 
         cities_states, positions = [], []
         for tag in tags:
@@ -193,7 +188,6 @@ def load_more():
     user_education = request.args.get("education_level", "no education")
 
     # Precompute embeddings for user skills
-    user_skill_embeddings = [model.encode(skill, convert_to_tensor=False) for skill in user_skills]
 
     jobs = scrape_linkedin(min_salary, city, state, page, position)
 
@@ -631,7 +625,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-# Load a sentence transformer model (better for multi-word phrases)
+
 model_2 = SentenceTransformer('all-MiniLM-L6-v2')
 
 def compare_skill_lists(job_skills, user_skills):
@@ -676,5 +670,4 @@ def compare_skill_lists(job_skills, user_skills):
 #-----------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(debug=True)
