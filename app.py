@@ -5,7 +5,6 @@ import json
 import html
 from fake_useragent import UserAgent
 from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from bs4 import BeautifulSoup
@@ -145,7 +144,7 @@ def index():
                 try:
 
                     mistral_start = time.perf_counter()
-                    job_skills = extract_skills_with_mistral(jd_plain_text)
+                    job_skills = extract_skills_from_text(jd_plain_text)
                     mistral_end = time.perf_counter()
                     print(
                         f"[DEBUG] Mistral extraction took {mistral_end - mistral_start:.2f} sec for job '{job.get('title')}'")
@@ -153,19 +152,14 @@ def index():
                     job["extracted_skills"] = job_skills
 
                     if user_skills:
-                        similarity_start = time.perf_counter()
-                        similarity_scores = compare_skill_lists(job_skills, user_skills, user_skill_embeddings)
-                        normalized_scores = normalize_scores(similarity_scores)
-                        avg_score = sum(normalized_scores) / len(normalized_scores) if normalized_scores else 0
+                        avg_score = compare_skill_lists(job_skills, user_skills)
                         job["score"] = round(avg_score)
-                        similarity_end = time.perf_counter()
-                        print(
-                            f"[DEBUG] Similarity computation took {similarity_end - similarity_start:.2f} sec for job '{job.get('title')}'")
                     else:
                         job["score"] = None
 
 
-                except:
+                except Exception as e:
+                    print(f"[ERROR] Exception occurred: {e}")
                     job["extracted_skills"] = []
                     job["score"] = None
 
@@ -218,12 +212,10 @@ def load_more():
         job['job_details'] = format_job_description(job['job_details'])
         try:
             jd_plain_text = Markup(job['job_details']).striptags()
-            job_skills = extract_skills_with_mistral(jd_plain_text)
+            job_skills = extract_skills_from_text(jd_plain_text)
             job["extracted_skills"] = job_skills
             if user_skills:
-                similarity_scores = compare_skill_lists(job_skills, user_skills, user_skill_embeddings)
-                normalized_scores = normalize_scores(similarity_scores)
-                avg_score = sum(normalized_scores) / len(normalized_scores) if normalized_scores else 0
+                avg_score = compare_skill_lists(job_skills, user_skills)
                 job["score"] = int(round(avg_score))
             else:
                 job["score"] = None
@@ -233,14 +225,7 @@ def load_more():
 
     return jsonify(filtered_jobs)
 
-def compare_skill_lists(job_skills, user_skills, user_skill_embeddings):
-    results = []
-    for js in job_skills:
-        js_embedding = model.encode(js, convert_to_tensor=False)
-        for idx, us_embedding in enumerate(user_skill_embeddings):
-            score = cosine_similarity(js_embedding.reshape(1, -1), us_embedding.reshape(1, -1))[0][0]
-            results.append((js, user_skills[idx], float(score)))
-    return results
+
 
 
 def get_headers():
@@ -453,56 +438,7 @@ def scrape_linkedin(min_salary, city="", state="", page=0, position=""):
         print(f"Exception in scrape_linkedin: {e}")
         return []
 
-def extract_skills_with_mistral(text, top_n=3):
-    # Remove first 100 words from the input text
-    words = text.split()
-    truncated_text = " ".join(words[100:]) if len(words) > 100 else ""
 
-    prompt = f"""
-Extract the top {top_n} individual specific skills mentioned in the following job description. Return the skills only, separated by commas.
-
-Job description:
-\"\"\"{truncated_text}\"\"\"
-
-Skills:
-"""
-    req_start = time.perf_counter()
-    response = requests.post(
-        API_URL,
-        json={
-            "model": MODEL_NAME,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.1,
-                "num_predict": 40,
-                "keep_alive": "30m"  # ✅ Keeps the model in memory for 30 minutes
-            }
-        }
-    )
-    req_end = time.perf_counter()
-    print(f"[DEBUG] extract_skills_with_mistral() request took {req_end - req_start:.2f} sec")
-    if response.status_code == 200:
-        skills_text = response.json()['response'].strip()
-        skills = [skill.strip() for skill in skills_text.split(",") if skill.strip()]
-        return skills[:top_n]
-    else:
-        raise Exception(f"Model API error: {response.status_code} - {response.text}")
-
-
-
-
-def normalize_scores(scores, threshold=THRESHOLD):
-    adjusted = []
-    for _, _, score in scores:
-        normalized = min(score / threshold, 1.0) * 100
-        boosted = normalized + 20
-        if boosted > 95:
-            excess = boosted - 95
-            boosted = 95 + excess / 10
-        boosted = min(boosted, 100)
-        adjusted.append(boosted)
-    return adjusted
 
 
 # Helper: Normalize text
@@ -612,6 +548,132 @@ def detect_visa_requirement(text):
     return "No visa or citizenship requirement mentioned."
 
 
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------FIND SKILLS-------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+import spacy
+from collections import defaultdict
+
+nlp = spacy.load("en_core_web_sm")
+
+def extract_skills_from_text(text):
+    doc = nlp(text)
+
+    keywords = []
+    seen = set()
+    for token in doc:
+        if token.pos_ in {"NOUN", "VERB", "ADJ"}:
+            word = token.lemma_.lower().strip()
+            if len(word) > 2 and word.isalpha() and not token.is_stop:
+                if word not in seen:
+                    keywords.append(word)
+                    seen.add(word)
+
+    # Step 2: Add noun chunks (e.g., "software installation")
+    keywords += [
+        chunk.lemma_.lower().replace(" ", "_")
+        for chunk in doc.noun_chunks
+        if len(chunk) > 1 and not any(t.is_stop for t in chunk)
+    ]
+
+    # Step 3: Filter by frequency (keep nouns appearing ≥1 time)
+    noun_freq = defaultdict(int)
+    for token in doc:
+        if token.pos_ == "NOUN":
+            noun_freq[token.lemma_.lower()] += 1
+
+    keywords = [
+        word for word in keywords
+        if (noun_freq.get(word.split("_")[0], 0) >= 1)
+    ]
+
+    # Filter keywords to keep only the most job-specific ones (7-8 max)
+    def filter_keywords(keywords, doc):
+        scores = {}
+        for term in keywords:
+            # Boost terms in "Required Skills" section
+            in_skills_section = any(
+                "required skills" in sent.text.lower() and term in sent.text.lower()
+                for sent in doc.sents
+            )
+
+            # Score components
+            freq_score = sum(1 for token in doc if token.lemma_.lower() in term)
+            length_score = len(term.split("_"))  # Prefer multi-word terms
+            position_score = 5 if in_skills_section else 1
+
+            scores[term] = freq_score * length_score * position_score
+
+        return sorted(scores.keys(), key=lambda x: -scores[x])[:8]
+
+    def clean_keyword(term):
+        term = term.replace("\n", " ")
+        term = term.replace("_", " ")
+        term = " ".join(term.split())
+        term = term.title()
+        return term
+
+    filtered_skills = [
+        clean_keyword(k)
+        for k in filter_keywords(keywords, doc)
+        if len(clean_keyword(k).split()) > 1
+    ]
+
+    return filtered_skills
+
+#-----------------------------------------------------------------------------------------------------------------------
+#--------------------------------------CALCULATE SCORE------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
+# Load a sentence transformer model (better for multi-word phrases)
+model_2 = SentenceTransformer('all-MiniLM-L6-v2')
+
+def compare_skill_lists(job_skills, user_skills):
+    results = []
+    scores = []
+
+    # Encode all skills first (more efficient)
+    job_embeddings = model_2.encode(job_skills, convert_to_tensor=False)
+    user_embeddings = model_2.encode(user_skills, convert_to_tensor=False)
+
+    for j_idx, js in enumerate(job_skills):
+        for u_idx, us in enumerate(user_skills):
+            score = cosine_similarity(
+                job_embeddings[j_idx].reshape(1, -1),
+                user_embeddings[u_idx].reshape(1, -1)
+            )[0][0]
+            scores.append(score)
+            results.append((js, us, float(score)))
+
+    def score_to_percent(score):
+        score = max(0, min(score, 0.5))
+        return (score / 0.5) * 100
+
+    for js, us, score in results:
+        pct = score_to_percent(score)
+        print(f"{js} ↔ {us} → {pct:.2f}%")
+
+    avg_score = np.mean(scores)
+    raw_pct = score_to_percent(avg_score) + 20
+
+    if raw_pct > 95:
+        excess = raw_pct - 95
+        avg_pct = 95 + (excess / 10)
+    else:
+        avg_pct = raw_pct
+
+    return avg_pct
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     app.run(debug=True)
