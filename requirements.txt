@@ -1,8 +1,9 @@
-flask
+Flask
 markupsafe
 fake-useragent
 sentence-transformers
-scikit-learn
 requests
 beautifulsoup4
-lxml
+spacy
+scikit-learn
+numpy
