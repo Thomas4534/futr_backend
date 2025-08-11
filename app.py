@@ -13,8 +13,7 @@ import time
 
 app = Flask(__name__)
 
-API_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "mistral"
+
 THRESHOLD = 0.55
 ua = UserAgent()
 
@@ -660,7 +659,7 @@ def compare_skill_lists(job_skills, user_skills):
         print(f"{js} ↔ {us} → {pct:.2f}%")
 
     avg_score = np.mean(scores)
-    raw_pct = score_to_percent(avg_score) + 20
+    raw_pct = score_to_percent(avg_score) + 40
 
     if raw_pct > 95:
         excess = raw_pct - 95
