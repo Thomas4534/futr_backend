@@ -1,0 +1,8 @@
+flask
+markupsafe
+fake-useragent
+sentence-transformers
+scikit-learn
+requests
+beautifulsoup4
+lxml
