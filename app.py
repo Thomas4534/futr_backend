@@ -550,7 +550,7 @@ from collections import defaultdict
 
 
 nlp = spacy.load(
-    "en_core_web_sm",
+    "en_core_web_md",
     disable=["parser", "ner"]  # disable heavy components
 )
 
@@ -624,21 +624,17 @@ def extract_skills_from_text(text):
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 
 
-model_2 = SentenceTransformer('paraphrase-MiniLM-L3-v2')
-
 def compare_skill_lists(job_skills, user_skills):
     results = []
     scores = []
 
-    # Encode all skills first (more efficient)
-    job_embeddings = model_2.encode(job_skills, convert_to_tensor=False)
-    user_embeddings = model_2.encode(user_skills, convert_to_tensor=False)
+    job_embeddings = [nlp(skill).vector for skill in job_skills]
+    user_embeddings = [nlp(skill).vector for skill in user_skills]
 
     for j_idx, js in enumerate(job_skills):
         for u_idx, us in enumerate(user_skills):
@@ -669,11 +665,10 @@ def compare_skill_lists(job_skills, user_skills):
     return avg_pct
 
 
+
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
