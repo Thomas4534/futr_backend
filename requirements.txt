@@ -1,6 +1,5 @@
 Flask
 fake-useragent
-sentence-transformers
 requests
 beautifulsoup4
 spacy
