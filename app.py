@@ -630,7 +630,7 @@ import numpy as np
 
 
 
-model_2 = SentenceTransformer('all-MiniLM-L3-v2')
+model_2 = SentenceTransformer('paraphrase-MiniLM-L3-v2')
 
 def compare_skill_lists(job_skills, user_skills):
     results = []
@@ -675,4 +675,5 @@ def compare_skill_lists(job_skills, user_skills):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
