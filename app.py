@@ -4,7 +4,6 @@ import random
 import json
 import html
 from fake_useragent import UserAgent
-from sentence_transformers import SentenceTransformer
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from bs4 import BeautifulSoup
@@ -549,7 +548,11 @@ def detect_visa_requirement(text):
 import spacy
 from collections import defaultdict
 
-nlp = spacy.load("en_core_web_sm")
+
+nlp = spacy.load(
+    "en_core_web_sm",
+    disable=["parser", "ner"]  # disable heavy components
+)
 
 def extract_skills_from_text(text):
     doc = nlp(text)
@@ -626,7 +629,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 
-model_2 = SentenceTransformer('all-MiniLM-L6-v2')
+
+model_2 = SentenceTransformer('all-MiniLM-L3-v2')
 
 def compare_skill_lists(job_skills, user_skills):
     results = []
@@ -671,3 +675,4 @@ def compare_skill_lists(job_skills, user_skills):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
