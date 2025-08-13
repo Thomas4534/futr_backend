@@ -1,4 +1,5 @@
 Flask
+gunicorn
 fake-useragent
 requests
 beautifulsoup4
