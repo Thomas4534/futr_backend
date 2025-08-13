@@ -160,15 +160,15 @@ def index():
     end_total = time.perf_counter()
     print(f"[DEBUG] TOTAL request time: {end_total - start_total:.2f} sec")
 
-    return render_template(
-        "index.html",
-        jobs=jobs,
-        tags_json=request.form.get("tags_json", "[]"),
-        min_salary=int(request.form.get("min_salary", 0)),
-        user_skills=user_skills,
-        skills_input_value=user_skills,
-        education_level=request.form.get("education_level", "no education")
-    )
+    return jsonify({
+        "jobs": jobs,
+        "tags_json": request.form.get("tags_json", "[]"),
+        "min_salary": int(request.form.get("min_salary", 0)),
+        "user_skills": user_skills,
+        "skills_input_value": user_skills,
+        "education_level": request.form.get("education_level", "no education"),
+        "request_time_seconds": round(end_total - start_total, 2)
+    })
 
 @app.route("/load_more", methods=["GET"])
 def load_more():
@@ -672,3 +672,4 @@ def compare_skill_lists(job_skills, user_skills):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
