@@ -4,6 +4,7 @@ import random
 import json
 import html
 from fake_useragent import UserAgent
+from sentence_transformers import SentenceTransformer
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from bs4 import BeautifulSoup
@@ -160,15 +161,15 @@ def index():
     end_total = time.perf_counter()
     print(f"[DEBUG] TOTAL request time: {end_total - start_total:.2f} sec")
 
-    return jsonify({
-        "jobs": jobs,
-        "tags_json": request.form.get("tags_json", "[]"),
-        "min_salary": int(request.form.get("min_salary", 0)),
-        "user_skills": user_skills,
-        "skills_input_value": user_skills,
-        "education_level": request.form.get("education_level", "no education"),
-        "request_time_seconds": round(end_total - start_total, 2)
-    })
+    return render_template(
+        "index.html",
+        jobs=jobs,
+        tags_json=request.form.get("tags_json", "[]"),
+        min_salary=int(request.form.get("min_salary", 0)),
+        user_skills=user_skills,
+        skills_input_value=user_skills,
+        education_level=request.form.get("education_level", "no education")
+    )
 
 @app.route("/load_more", methods=["GET"])
 def load_more():
@@ -548,10 +549,8 @@ def detect_visa_requirement(text):
 import spacy
 from collections import defaultdict
 
-
 nlp = spacy.load(
-    "en_core_web_md",
-    disable=["parser", "ner"]  # disable heavy components
+    "en_core_web_sm",
 )
 
 def extract_skills_from_text(text):
@@ -624,17 +623,20 @@ def extract_skills_from_text(text):
 #-----------------------------------------------------------------------------------------------------------------------
 
 
+from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 
+model_2 = SentenceTransformer('paraphrase-MiniLM-L3-v2')
 
 def compare_skill_lists(job_skills, user_skills):
     results = []
     scores = []
 
-    job_embeddings = [nlp(skill).vector for skill in job_skills]
-    user_embeddings = [nlp(skill).vector for skill in user_skills]
+    # Encode all skills first (more efficient)
+    job_embeddings = model_2.encode(job_skills, convert_to_tensor=False)
+    user_embeddings = model_2.encode(user_skills, convert_to_tensor=False)
 
     for j_idx, js in enumerate(job_skills):
         for u_idx, us in enumerate(user_skills):
@@ -665,11 +667,9 @@ def compare_skill_lists(job_skills, user_skills):
     return avg_pct
 
 
-
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     app.run(debug=True)
-
