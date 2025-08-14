@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Futr - Job Finder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+/* Reset & base */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+               sans-serif;
+  background: #fff;
+  color: #0a3d24; /* Dark Green */
+  padding: 40px 20px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings */
+h1 {
+  font-weight: 900;
+  font-size: 64px;
+  margin-bottom: 32px;
+  text-align: center;
+  color: #0a3d24;
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+               sans-serif;
+  user-select: none;
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-top: 50px;
+  margin-bottom: 20px;
+  border-bottom: 3px solid #0a3d24;
+  padding-bottom: 8px;
+  user-select: none;
+}
+
+
+/* Education dropdown styling */
+.education-label {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #0a3d24; /* Dark green color */
+    display: block;
+}
+
+
+
+/* Update the select dropdown to match the theme */
+.education-select {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 1px solid #0a3d24; /* Dark green border */
+    border-radius: 5px;
+    background-color: #0a3d24; /* Dark green background */
+    color: #fff; /* White text */
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.education-select:focus {
+    border-color: #007bff; /* Blue focus border (optional) */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue focus shadow (optional) */
+    outline: none;
+}
+
+/* Hover effect for the dropdown */
+.education-select:hover {
+    background-color: #145c2f; /* Darker green on hover */
+}
+
+
+
+/* Circular ? button */
+#info-button {
+position: fixed;
+top: 15px;
+left: 15px;
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background-color: #007BFF;
+color: white;
+font-weight: bold;
+font-size: 24px;
+line-height: 40px;
+text-align: center;
+cursor: pointer;
+user-select: none;
+z-index: 1001;
+box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Info panel */
+#info-panel {
+position: fixed;
+top: 70px;
+left: 15px;
+width: 300px;
+max-width: 90vw;
+background: white;
+border: 2px solid #007BFF;
+border-radius: 8px;
+padding: 15px 20px 20px 20px;
+box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+font-family: 'Inter', sans-serif;
+color: #333;
+z-index: 1000;
+display: none; /* hidden by default */
+}
+
+/* Close (X) button inside info panel */
+#info-close {
+position: absolute;
+top: 8px;
+right: 10px;
+font-weight: bold;
+font-size: 18px;
+color: #555;
+cursor: pointer;
+user-select: none;
+}
+#info-close:hover {
+color: #000;
+}
+
+
+
+
+
+
+/* Score circle container */
+.score-circle {
+  position: absolute;
+  width: 100px;     /* bigger container */
+  height: 100px;
+  margin-top: 3px;
+  left: 10px;
+  flex-shrink: 0;
+  margin-left: 0px;
+}
+
+/* SVG container takes full size */
+.score-circle svg {
+  display: block;
+  transform: rotate(-90deg);
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+}
+
+/* Background circle */
+.score-circle circle.bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 9;    /* thicker stroke proportional to size */
+}
+
+/* Foreground circle */
+.score-circle circle.fg {
+  fill: none;
+  stroke-width: 9;    /* thicker stroke proportional to size */
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+}
+
+/* Score text inside circle */
+.score-circle .score-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 26px;    /* bigger font size */
+  user-select: none;
+  pointer-events: none;
+  margin: 0;
+  line-height: 1;
+  color: #0B3D2E;
+}
+
+
+
+
+
+
+
+
+.job-info {
+  flex-grow: 1;  /* take all remaining horizontal space */
+}
+
+
+.job-title-company {
+  text-align: left;
+}
+
+.job-location-salary {
+  text-align: center; /* or left, depending on how you want it */
+  margin-top: 4px;
+}
+
+
+
+
+
+
+
+  /* Overall page */
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F8FAF7;
+    color: #0B3D2E; /* dark green */
+    margin: 0;
+    padding: 20px;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-weight: 900;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: #0B3D2E;
+  }
+
+
+  /* Job Filter Panel */
+  form#job-form {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgb(11 61 46 / 0.15);
+    margin-bottom: 2.5rem;
+  }
+
+  form#job-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: #0B3D2E;
+  }
+
+  /* Input containers */
+  .tag-input-container,
+  #skills-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: #f1f7f4;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1.5px solid #c3d4ca;
+    margin-bottom: 20px;
+    min-height: 42px;
+  }
+
+  /* Input boxes */
+  input[type="text"],
+  select.education-select,
+  input[type="range"] {
+    flex: 1 1 auto;
+    border: none;
+    font-size: 1rem;
+    background: transparent;
+    outline: none;
+    padding: 6px 8px;
+    color: #0B3D2E;
+  }
+
+  /* Suggestions dropdown */
+  .suggestions {
+    position: absolute;
+    background: white;
+    border: 1px solid #c3d4ca;
+    border-radius: 8px;
+    max-height: 160px;
+    overflow-y: auto;
+    box-shadow: 0 4px 10px rgb(11 61 46 / 0.1);
+    z-index: 10;
+    width: 100%;
+    top: 100%;
+    left: 0;
+  }
+  .suggestion {
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #0B3D2E;
+  }
+  .suggestion:hover {
+    background-color: #0B3D2E;
+    color: white;
+  }
+
+  /* Tags inside input */
+  .tag {
+    background: #0B3D2E;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+  }
+  .tag .remove-tag {
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .tag .remove-tag:hover {
+    color: #ff4d4d;
+  }
+
+  /* Salary slider wrapper */
+  .salary-slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  #min_salary_value {
+    font-weight: 700;
+    color: #0B3D2E;
+    min-width: 80px;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 10px;
+    background: #c3d4ca;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #0B3D2E;
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(11, 61, 46, 0.5);
+    transition: background-color 0.3s ease;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    background-color: #09502a;
+  }
+
+  /* Education select wrapper */
+  .education-select-wrapper {
+    margin-bottom: 30px;
+  }
+  select.education-select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1.5px solid #c3d4ca;
+    background: #f1f7f4;
+    color: #0B3D2E;
+    font-weight: 600;
+  }
+
+  /* Buttons */
+  button.btn-primary {
+    background-color: #0B3D2E;
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    font-size: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgb(11 61 46 / 0.3);
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  button.btn-primary:hover {
+    background-color: #09502a;
+  }
+  button.btn-secondary {
+    background-color: transparent;
+    border: 2px solid #0B3D2E;
+    color: #0B3D2E;
+    padding: 10px 20px;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  button.btn-secondary:hover {
+    background-color: #0B3D2E;
+    color: white;
+  }
+
+  /* Job list */
+  ul.job-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Each job item card */
+  li.job-item {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 5px 15px rgb(11 61 46 / 0.1);
+    padding: 20px 24px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  /* Job header area - left side for circle */
+  .job-header {
+    flex-shrink: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+  }
+
+  /* Keep circle styling, but update colors */
+
+
+  /* Job details wrapper - right side info */
+  .job-details-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #355b47;
+    font-size: 0.9rem;
+    margin-left: 0px;
+  }
+
+
+
+  .job-detail {
+    display: flex;
+    align-items: center;
+  }
+  .job-detail i.icon {
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    filter: brightness(0) saturate(100%) invert(29%) sepia(80%) saturate(309%) hue-rotate(87deg) brightness(94%) contrast(89%);
+  }
+
+  /* Job title & company */
+  .job-item strong {
+    font-size: 1.1rem;
+    color: #0B3D2E;
+  }
+  .job-item em {
+    color: #54856c;
+    font-style: normal;
+    font-weight: 600;
+  }
+  .salary {
+    font-weight: 600;
+    color: #0B3D2E;
+  }
+
+  /* Buttons in job card */
+  .apply-btn {
+    background-color: #0B3D2E;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+  }
+  .apply-btn:hover {
+    background-color: #09502a;
+  }
+  .view-details-btn {
+    margin-left: 15px;
+    background-color: transparent;
+    border: 2px solid #0B3D2E;
+    color: #0B3D2E;
+    padding: 7px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .view-details-btn:hover {
+    background-color: #0B3D2E;
+    color: white;
+  }
+
+  /* Job details expanded */
+  .job-details {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #355b47;
+  }
+
+  hr {
+    border: none;
+    border-bottom: 1px solid #d9e4db;
+    margin-top: 20px;
+    margin-bottom: 0;
+  }
+
+  /* Info button */
+  #info-button {
+    background-color: #0B3D2E;
+    color: white;
+    box-shadow: 0 3px 8px rgba(11,61,46,0.6);
+  }
+  #info-button:hover {
+    background-color: #09502a;
+  }
+
+  /* Info panel */
+  #info-panel {
+    border-color: #0B3D2E;
+    box-shadow: 0 6px 18px rgba(11,61,46,0.3);
+    color: #0B3D2E;
+  }
+  #info-close {
+    color: #0B3D2E;
+  }
+  #info-close:hover {
+    color: #09502a;
+  }
+
+/* Placeholder (for educational level) */
+.education-select option {
+    background-color: #0a3d24; /* Dark green background for options */
+    color: #fff; /* White text */
+    font-size: 1rem;
+    padding: 10px;
+}
+
+
+.view-details-btn {
+    background-color: #0a3d24;  /* Dark green background */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.view-details-btn:hover {
+    background-color: #145c2f;  /* Slightly lighter green on hover */
+    box-shadow: 0 6px 12px rgba(10, 61, 36, 0.2);
+}
+
+.view-details-btn:active {
+    background-color: #07411d;  /* Even darker green when clicked */
+    box-shadow: 0 2px 6px rgba(10, 61, 36, 0.3);
+}
+
+/* Styling for the form container */
+form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Button Styles */
+.btn-primary {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.education-select-wrapper {
+    max-width: 250px; /* Shorten the width of the dropdown */
+    margin-bottom: 10px; /* Adjust the spacing */
+}
+
+
+
+/* Main form */
+form {
+  background-color: #f8fef8;
+  border: 2px solid #0a3d24;
+  border-radius: 16px;
+  padding: 40px 40px 50px 40px;
+  box-shadow: 0 12px 28px rgba(10, 61, 36, 0.18);
+  transition: box-shadow 0.3s ease;
+  max-width: 100%;
+}
+
+form:hover,
+form:focus-within {
+  box-shadow: 0 20px 48px rgba(10, 61, 36, 0.3);
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #0a3d24;
+  user-select: text;
+}
+
+/* Tag Input container */
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  border: 2px solid #0a3d24;
+  border-radius: 32px;
+  padding: 14px 20px;
+  background: #e9f6e9;
+  max-width: 420px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.tag-input-container:focus-within {
+  border-color: #3c7d3c;
+  box-shadow: 0 0 14px #3c7d3cbb;
+}
+
+.tag-input-container input {
+  border: none;
+  outline: none;
+  font-size: 1.125rem;
+  flex-grow: 1;
+  min-width: 150px;
+  background: transparent;
+  color: #0a3d24;
+  padding: 8px 12px;
+  user-select: text;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.tag-input-container input::placeholder {
+  color: #527a4e;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Tags */
+.tag {
+  background-color: #0a3d24;
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 20px;
+  margin: 8px 10px 8px 0;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 5px 12px rgba(10, 61, 36, 0.25);
+  user-select: none;
+  cursor: default;
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+}
+
+.tag:hover {
+  background-color: #145c2f;
+}
+
+.tag .remove-tag {
+  margin-left: 14px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: color 0.3s ease;
+  user-select: none;
+}
+
+.tag .remove-tag:hover {
+  color: #ff5c5c;
+}
+
+/* Suggestions dropdown */
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  background: #f7fff7;
+  border: 2px solid #0a3d24;
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 8px 20px rgba(10, 61, 36, 0.22);
+  z-index: 1000;
+  user-select: none;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.suggestion {
+  padding: 14px 22px;
+  cursor: pointer;
+  color: #0a3d24;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion:hover,
+.suggestion[aria-selected="true"] {
+  background-color: #d4eddb;
+}
+
+/* Salary slider */
+.salary-label {
+  margin-top: 36px;
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  user-select: none;
+}
+
+.salary-slider-wrapper {
+  display: flex;
+  align-items: center;
+  max-width: 340px;
+}
+
+#min_salary_slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  background: #e2f0e2;
+  border-radius: 8px;
+  cursor: pointer;
+  accent-color: #0a3d24;
+  transition: accent-color 0.3s ease;
+  margin-right: 20px;
+  box-shadow: inset 0 1px 3px #a0d3a0;
+}
+
+#min_salary_slider:hover {
+  accent-color: #3c7d3c;
+}
+
+#min_salary_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  background: #0a3d24;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 0 10px #0a3d24cc;
+  margin-top: -8px;
+}
+
+#min_salary_slider::-webkit-slider-thumb:hover {
+  background-color: #145c2f;
+}
+
+#min_salary_value {
+  font-weight: 700;
+  color: #0a3d24;
+  min-width: 110px;
+  user-select: text;
+  font-size: 1.1rem;
+}
+
+/* Buttons */
+.btn-primary,
+#load-more.btn-secondary {
+    background-color: #0a3d24;
+    color: white;
+    border: none;
+    padding: 16px 44px;
+    font-size: 1.25rem;
+    font-weight: 900;
+    border-radius: 32px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(10, 61, 36, 0.7);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+}
+
+.btn-primary:hover,
+#load-more.btn-secondary:hover {
+    background-color: #145c2f;
+    box-shadow: 0 10px 30px rgba(20, 92, 47, 0.9);
+}
+
+.btn-primary:active,
+#load-more.btn-secondary:active {
+    box-shadow: 0 5px 15px rgba(10, 61, 36, 1);
+}
+
+.bold-text {
+    font-weight: bold;
+}
+
+.job-details h2, .job-details h3 {
+    font-weight: bold;
+    margin-top: 1em;
+    color: #333;
+}
+
+.job-details strong {
+    font-weight: bold;  /* Make sure strong elements are bold */
+}
+
+.job-details ul {
+    margin-left: 20px;
+    list-style-type: disc;
+}
+
+.job-details li {
+    margin-bottom: 10px;
+}
+
+.job-details br {
+    margin-bottom: 10px;
+}
+
+/* Job listings */
+.job-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 28px;
+}
+
+.job-item {
+    background: #e9f6e9;
+    border: 2px solid #0a3d24;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 20px rgba(10, 61, 36, 0.18);
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.job-header {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #07411d;
+    margin-bottom: 12px;
+}
+
+.job-main-info {
+    display: flex;
+    align-items: center;
+}
+
+.job-header .salary {
+    font-size: 1.1rem;
+    color: #0a3d24;
+    font-weight: 600;
+}
+
+.job-details-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.apply-btn {
+    background-color: #0a3d24;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    margin-top: 10px;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.apply-btn:hover {
+    background-color: #145c2f;
+}
+
+.job-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    color: #0a3d24;
+}
+
+.job-detail i {
+    font-size: 1.3rem;
+    color: #0a3d24;
+}
+
+.job-detail span {
+    font-weight: 500;
+}
+
+
+.job-item:hover {
+    box-shadow: 0 14px 38px rgba(10, 61, 36, 0.34);
+}
+
+.job-item strong {
+  font-size: 1.4rem;
+  color: #07411d;
+  display: inline-block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+
+.education-icon::before {
+    content: "\f19c"; /* Use relevant icon code */
+}
+
+.visa-icon::before {
+    content: "\f0e7"; /* Use relevant icon code */
+}
+
+.icon {
+    font-family: 'Font Awesome 5 Free'; /* Or use any other icon library */
+    font-weight: 900;
+}
+
+.job-item em {
+  color: #3c7d3c;
+  font-style: italic;
+  display: inline-block;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.job-item a {
+    display: inline-block;
+    background-color: #0a3d24;  /* Dark green background */
+    color: white;  /* White text */
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 5px;
+    text-decoration: none;  /* Remove underline */
+    text-align: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    width: auto;
+    margin-top: 10px;
+    display: block;  /* Ensures the button has a block layout */
+}
+
+.job-item a:hover {
+    background-color: #145c2f;  /* Slightly lighter green on hover */
+    box-shadow: 0 6px 12px rgba(10, 61, 36, 0.2);
+}
+
+.job-item a:active {
+    background-color: #07411d;  /* Even darker green when clicked */
+    box-shadow: 0 2px 6px rgba(10, 61, 36, 0.3);
+}
+
+
+hr {
+  border: none;
+  border-top: 1px solid #0a3d2411;
+  margin-top: 18px;
+}
+
+/* Loading spinner */
+#loading-spinner {
+  margin-top: 24px;
+  font-style: italic;
+  color: #527a4e;
+  user-select: none;
+  font-weight: 600;
+}
+
+/* Utility */
+.hidden {
+  display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  body {
+    padding: 20px 15px;
+  }
+
+  form {
+    padding: 30px 25px 40px 25px;
+  }
+
+  .tag-input-container,
+  #min_salary_slider,
+  .salary-slider-wrapper {
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: 48px;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+}
+
+
+.tag-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    background-color: #f1f7f4;
+}
+
+.tag-input-container input[type="text"] {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.suggestions {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 2px;
+    z-index: 1000;
+    width: 100%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.suggestions div {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.suggestions div:hover {
+    background-color: #f5f5f5;
+}
+
+    </style>
+</head>
+<body>
+    <!-- Info button -->
+    <div id="info-button" title="Info">?</div>
+
+    <!-- Info panel -->
+    <div id="info-panel" role="dialog" aria-modal="true" aria-labelledby="info-title" aria-describedby="info-content">
+        <div id="info-close" aria-label="Close info panel" role="button" tabindex="0">×</div>
+        <h2 id="info-title" style="margin-top:0;">Information</h2>
+        <div id="info-content">
+            <!-- You can change this text to whatever you want -->
+            <p>Welcome to Futr - Job Finder! Use the search panel below to find jobs by location, position, skills, and more. Adjust filters like minimum salary and education level to get tailored results. </p>
+            <p>Beside each job, you'll find a compatibility score based on your skills,interests, and qualities.</p>
+            <p> Please make sure to verify that all the results displayed on the panel are accurate before applying. This page is still in development.</p>
+            <p>If you need help, just click the <strong>?</strong> button again to show this panel.</p>
+        </div>
+    </div>
+
+    <main>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 900;">Futr - Job Finder</h1>
+        <form id="job-form" method="post" action="/" autocomplete="off">
+            <label for="tag-input">Search by locations and positions:</label>
+            <div id="tag-input-container" class="tag-input-container">
+                <input
+                  type="text"
+                  id="tag-input"
+                  name="tag-input"
+                  placeholder="e.g., New York, Software Engineer"
+                  autocomplete="off"
+                  aria-autocomplete="list"
+                  aria-haspopup="true"
+                />
+                <div id="suggestions" class="suggestions" role="listbox" aria-label="Suggestions"></div>
+            </div>
+
+            <label for="skills-input">Skills/Interests/Qualities:</label>
+            <div id="skills-input-container" class="tag-input-container">
+                <div id="skills-tags">
+                    <!-- Render user skills as tags with "X" button to delete -->
+                    {% for skill in user_skills %}
+                        <div class="tag">
+                            {{ skill }}
+                            <span class="remove-tag" onclick="removeTag('{{ skill }}')">×</span> <!-- The 'X' to delete -->
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <input
+                  type="text"
+                  id="skills-input"
+                  name="skills-input"
+                  placeholder="e.g., Python, React, SQL"
+                  autocomplete="off"
+                  aria-autocomplete="list"
+                  aria-haspopup="true"
+                />
+                <div id="skills-suggestions" class="suggestions" role="listbox" aria-label="Skills Suggestions"></div>
+            </div>
+
+            <!-- Hidden input fields for storing the tags -->
+            <input type="hidden" name="tags_json" id="tags-json" value='{{ tags_json | safe }}' />
+            <input type="hidden" name="skills_json" id="skills-json" value='{{ user_skills | tojson | safe }}' />
+
+            <label for="min_salary_slider" class="salary-label">Minimum Salary:</label>
+            <div class="salary-slider-wrapper">
+                <input
+                  type="range"
+                  id="min_salary_slider"
+                  name="min_salary_slider"
+                  min="0" max="200000" step="1000"
+                  value="{{ min_salary }}"
+                  aria-valuemin="0"
+                  aria-valuemax="200000"
+                  aria-valuenow="{{ min_salary }}"
+                  aria-label="Minimum Salary Slider"
+                />
+                <output id="min_salary_value">${{ "{:,}".format(min_salary) }}</output>
+            </div>
+            <input type="hidden" name="min_salary" id="min_salary" value="{{ min_salary }}">
+
+            <label for="education_level" class="education-label">Your Highest Education Level:</label>
+            <div class="education-select-wrapper">
+                <select name="education_level" id="education_level" required class="education-select">
+                    <option value="no education">No Education</option>
+                    <option value="certificate">Certificate</option>
+                    <option value="associate">Associate (A.A.)</option>
+                    <option value="bachelor">Bachelor (BSc, BA)</option>
+                    <option value="master">Master (MSc, MA)</option>
+                    <option value="phd">Doctorate (PhD)</option>
+                </select>
+            </div>
+
+            <!-- Message about average response time -->
+            <div id="response-time-message" style="color: #28a745; font-weight: 600; margin-bottom: 1em; display: none;">
+                Average response time is around 60-70 seconds.
+            </div>
+
+            <button type="submit" class="btn-primary">Search</button>
+        </form>
+
+        {% if jobs %}
+            <section aria-live="polite" aria-atomic="true">
+                <h2 id="job-count">Found {{ jobs|length }} jobs:</h2>
+                <ul id="job-list" class="job-list">
+                    {% for job in jobs %}
+                        <li class="job-item">
+                            <div class="score-circle" aria-label="Job match score: {{ job.score if job.score is not none else 'N/A' }} percent">
+                                <svg viewBox="0 0 36 36" role="img" aria-hidden="true" focusable="false">
+                                    <circle class="bg" cx="18" cy="18" r="16"></circle>
+                                    <circle class="fg" cx="18" cy="18" r="16"
+                                        stroke="{% if job.score is none %}gray{% elif job.score < 40 %}red{% elif job.score < 70 %}orange{% else %}green{% endif %}"
+                                        stroke-dasharray="100, 100"
+                                        stroke-dashoffset="{% if job.score is none %}100{% else %}{{ 100 - (job.score | int) }}{% endif %}">
+                                    </circle>
+                                </svg>
+                                <div class="score-text">{{ job.score if job.score is not none else 'N/A' }}</div>
+                            </div>
+
+                            <div class="job-header">
+                                <div class="job-main-info">
+
+                                    <div class="job-info">
+                                        <strong>{{ job.title }}</strong> at {{ job.company }}<br />
+                                        <em>{{ job.location }}</em><br />
+                                        <span class="salary">{{ job.salary }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="job-details-wrapper">
+                                <div class="job-detail">
+                                    <i class="icon education-icon"></i>
+                                    <span>{{ job.education_requirement or 'N/A' }}</span>
+                                </div>
+                                <div class="job-detail">
+                                    <i class="icon visa-icon"></i>
+                                    <span>{{ job.visa_requirement or 'N/A' }}</span>
+                                </div>
+                            </div>
+                            <a href="{{ job.url }}" target="_blank" rel="noopener noreferrer" class="apply-btn">Apply Now</a>
+                            <button class="view-details-btn" data-job-id="{{ loop.index }}">View Details</button>
+                            <div class="job-details" id="details-{{ loop.index }}" style="display:none;">
+                                {{ job.job_details | safe }}
+                            </div>
+                            <hr />
+                        </li>
+                    {% endfor %}
+                </ul>
+                <button id="load-more" class="btn-secondary">Load More Jobs</button>
+                <div id="loading-spinner" class="hidden">Average response time is around 60-70s.</div>
+            </section>
+        {% endif %}
+    </main>
+
+    <script>
+        // JavaScript to remove tags and update the hidden input field
+        function removeTag(skill) {
+            // Remove the tag from the DOM
+            var tag = document.querySelector(".tag:contains('" + skill + "')");
+            if(tag) tag.remove();
+
+            // Update the hidden input with the removed skill
+            var skillsJson = document.getElementById('skills-json').value;
+            var skills = JSON.parse(skillsJson);
+            var index = skills.indexOf(skill);
+            if (index !== -1) {
+                skills.splice(index, 1);  // Remove skill from array
+            }
+            document.getElementById('skills-json').value = JSON.stringify(skills);  // Update the hidden field value
+        }
+
+        window.onload = function() {
+            var education_level_value = "{{ education_level | default('') }}";
+            if (education_level_value) {
+                var selectElement = document.getElementById('education_level');
+                for (var i = 0; i < selectElement.options.length; i++) {
+                    if (selectElement.options[i].value === education_level_value) {
+                        selectElement.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        };
+
+        const infoButton = document.getElementById('info-button');
+        const infoPanel = document.getElementById('info-panel');
+        const infoClose = document.getElementById('info-close');
+
+        // Show info panel when ? button clicked
+        infoButton.addEventListener('click', () => {
+            infoPanel.style.display = 'block';
+            infoClose.focus();
+        });
+
+        // Hide info panel when close (X) clicked
+        infoClose.addEventListener('click', () => {
+            infoPanel.style.display = 'none';
+            infoButton.focus();
+        });
+
+        // Accessibility: close info panel with Enter or Space on the close button
+        infoClose.addEventListener('keydown', (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                infoClose.click();
+            }
+        });
+
+        // Show the average response time message when the form is submitted
+        const jobForm = document.getElementById('job-form');
+        const responseTimeMessage = document.getElementById('response-time-message');
+
+        jobForm.addEventListener('submit', () => {
+            responseTimeMessage.style.display = 'block';
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+  // --- Existing tags input setup ---
+  const tagInputContainer = document.getElementById("tag-input-container");
+  const tagInput = document.getElementById("tag-input");
+  const suggestionsBox = document.getElementById("suggestions");
+  const hiddenTagsInput = document.getElementById("tags-json");
+  let tags = []; // Tags are now properly initialized as an array.
+
+  // --- New skills input setup ---
+  const skillsInputContainer = document.getElementById("skills-input-container");
+  const skillsInput = document.getElementById("skills-input");
+  const skillsSuggestionsBox = document.getElementById("skills-suggestions");
+  const hiddenSkillsInput = document.getElementById("skills-json");
+  let skills = []; // Skills are now properly initialized as an array.
+
+  const geoapifyKey = "9a52257da7304946a3d5520fa705d530";
+
+  // Load saved tags from the hidden input, ensuring it's an array.
+  try {
+    const savedTags = JSON.parse(hiddenTagsInput.value || "[]");
+    if (Array.isArray(savedTags)) {
+      tags = savedTags;
+      renderTags(); // Render the tags to the UI.
+    }
+  } catch (err) {
+    console.error("Error loading saved tags:", err);
+  }
+
+  // Load saved skills from the hidden input, ensuring it's an array.
+  try {
+    const savedSkills = JSON.parse(hiddenSkillsInput.value || "[]");
+    if (Array.isArray(savedSkills)) {
+      skills = savedSkills;
+      renderSkills(); // Render the skills to the UI.
+    }
+  } catch (err) {
+    console.error("Error loading saved skills:", err);
+  }
+
+  // Function to render tags as individual elements (span tags).
+  function renderTags() {
+    tagInputContainer.querySelectorAll(".tag").forEach(tag => tag.remove());
+
+    tags.forEach((tagText, index) => {
+      const tag = document.createElement("span");
+      tag.classList.add("tag");
+      tag.textContent = tagText;
+
+      const removeBtn = document.createElement("span");
+      removeBtn.textContent = "×";
+      removeBtn.classList.add("remove-tag");
+      removeBtn.addEventListener("click", () => {
+        tags.splice(index, 1);
+        renderTags();
+      });
+
+      tag.appendChild(removeBtn);
+      tagInputContainer.insertBefore(tag, tagInput);
+    });
+
+    // Update the hidden input value with the correct tags array.
+    hiddenTagsInput.value = JSON.stringify(tags);
+  }
+
+  // Function to render skills as individual elements (span tags).
+  function renderSkills() {
+    skillsInputContainer.querySelectorAll(".tag").forEach(tag => tag.remove());
+
+    skills.forEach((skillText, index) => {
+      const tag = document.createElement("span");
+      tag.classList.add("tag");
+      tag.textContent = skillText;
+
+      const removeBtn = document.createElement("span");
+      removeBtn.textContent = "×";
+      removeBtn.classList.add("remove-tag");
+      removeBtn.addEventListener("click", () => {
+        skills.splice(index, 1);
+        renderSkills();
+      });
+
+      tag.appendChild(removeBtn);
+      skillsInputContainer.insertBefore(tag, skillsInput);
+    });
+
+    // Update the hidden input value with the correct skills array.
+    hiddenSkillsInput.value = JSON.stringify(skills);
+  }
+
+  // Show suggestions for tags
+  function showSuggestions(suggestions) {
+    suggestionsBox.innerHTML = "";
+    suggestions.forEach(item => {
+      const div = document.createElement("div");
+      div.classList.add("suggestion");
+      div.textContent = item;
+      div.addEventListener("click", () => {
+        if (!tags.includes(item)) {
+          tags.push(item);
+          renderTags(); // Render updated tags
+        }
+        tagInput.value = ""; // Clear input after selection.
+        suggestionsBox.innerHTML = ""; // Clear suggestions.
+      });
+      suggestionsBox.appendChild(div);
+    });
+  }
+
+  // Show suggestions for skills
+  function showSkillsSuggestions(suggestions) {
+    skillsSuggestionsBox.innerHTML = "";
+    suggestions.forEach(item => {
+      const div = document.createElement("div");
+      div.classList.add("suggestion");
+      div.textContent = item;
+      div.addEventListener("click", () => {
+        if (!skills.includes(item)) {
+          skills.push(item);
+          renderSkills(); // Render updated skills
+        }
+        skillsInput.value = ""; // Clear input after selection.
+        skillsSuggestionsBox.innerHTML = ""; // Clear suggestions.
+      });
+      skillsSuggestionsBox.appendChild(div);
+    });
+  }
+
+  // Debounce and autocomplete for tags input
+  let debounceTimeout;
+  tagInput.addEventListener("input", () => {
+    clearTimeout(debounceTimeout);
+    const query = tagInput.value.trim();
+    if (query.length < 2) {
+      suggestionsBox.innerHTML = "";
+      return;
+    }
+
+    debounceTimeout = setTimeout(async () => {
+      try {
+        const [geo, datamuse] = await Promise.all([ // Fetch geo and datamuse suggestions
+          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&type=city&filter=countrycode:us&format=json&limit=5&apiKey=${geoapifyKey}`)
+            .then(res => res.json())
+            .then(data => data.results.map(r => `${r.city}, ${r.state}`)),
+          fetch(`https://api.datamuse.com/sug?s=${encodeURIComponent(query)}&max=5`)
+            .then(res => res.json())
+            .then(data => data.map(item => item.word))
+        ]);
+
+        showSuggestions([...new Set([...geo, ...datamuse])]);
+      } catch (err) {
+        console.error("Autocomplete fetch error:", err);
+      }
+    }, 300);
+  });
+
+  // Debounce and autocomplete for skills input
+  let skillsDebounceTimeout;
+  skillsInput.addEventListener("input", () => {
+    clearTimeout(skillsDebounceTimeout);
+    const query = skillsInput.value.trim();
+    if (query.length < 2) {
+      skillsSuggestionsBox.innerHTML = "";
+      return;
+    }
+
+    skillsDebounceTimeout = setTimeout(async () => {
+      try {
+        const suggestions = await fetch(`https://api.datamuse.com/sug?s=${encodeURIComponent(query)}&max=5`)
+          .then(res => res.json())
+          .then(data => data.map(item => item.word));
+
+        showSkillsSuggestions(suggestions);
+      } catch (err) {
+        console.error("Skills autocomplete fetch error:", err);
+      }
+    }, 300);
+  });
+
+  // Keydown handler for tags input (add/remove tags)
+  tagInput.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === "," || e.key === "Tab") && tagInput.value.trim()) {
+      e.preventDefault();
+      const value = tagInput.value.trim();
+      if (!tags.includes(value)) {
+        tags.push(value);
+        renderTags(); // Render updated tags.
+      }
+      tagInput.value = "";
+      suggestionsBox.innerHTML = "";
+    } else if (e.key === "Backspace" && tagInput.value === "") {
+      tags.pop();
+      renderTags(); // Render updated tags.
+    }
+  });
+
+  // Keydown handler for skills input (add/remove skills)
+  skillsInput.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === "," || e.key === "Tab") && skillsInput.value.trim()) {
+      e.preventDefault();
+      const value = skillsInput.value.trim();
+      if (!skills.includes(value)) {
+        skills.push(value);
+        renderSkills(); // Render updated skills.
+      }
+      skillsInput.value = "";
+      skillsSuggestionsBox.innerHTML = "";
+    } else if (e.key === "Backspace" && skillsInput.value === "") {
+      skills.pop();
+      renderSkills(); // Render updated skills.
+    }
+  });
+
+  // Salary slider setup (unchanged)
+  const slider = document.getElementById("min_salary_slider");
+  const valueDisplay = document.getElementById("min_salary_value");
+  const hiddenMinSalary = document.getElementById("min_salary");
+
+  if (slider && valueDisplay && hiddenMinSalary) {
+    slider.addEventListener("input", () => {
+      const val = parseInt(slider.value);
+      valueDisplay.textContent = `$${val.toLocaleString()}`;
+      hiddenMinSalary.value = val;
+    });
+  }
+
+  // Decode HTML entities helper (unchanged)
+  function decodeHtmlEntities(str) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = str;
+    return txt.value;
+  }
+
+  // Load more button logic (UPDATED to include score)
+  const loadMoreBtn = document.getElementById('load-more');
+  let currentPage = 0;
+
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', async function () {
+      const jobList = document.getElementById('job-list');
+      const loadingSpinner = document.getElementById('loading-spinner');
+
+      const tagsJson = document.getElementById('tags-json').value;
+      let tags;
+      try {
+        tags = JSON.parse(tagsJson);
+      } catch {
+        alert('Error reading search parameters');
+        return;
+      }
+
+      const skillsJson = document.getElementById('skills-json').value;
+      let skills = [];
+      try {
+        skills = JSON.parse(skillsJson);
+      } catch {
+        // ignore errors, skills optional
+      }
+
+      const minSalary = document.getElementById('min_salary').value;
+      let city = '', state = '', position = '';
+
+      for (const tag of tags) {
+        if (tag.includes(',')) {
+          const cityState = tag.split(',');
+          if (cityState.length === 2) {
+            city = cityState[0].trim();
+            state = cityState[1].trim();
+          }
+        } else {
+          position += tag + ' ';
+        }
+      }
+
+      position = position.trim();
+      const nextPage = currentPage + 1;
+
+      // Construct flexible query parameters
+      const params = new URLSearchParams();
+      if (city) params.append("city", city);
+      if (state) params.append("state", state);
+      if (position) params.append("position", position);
+      if (skills.length) params.append("skills_json", JSON.stringify(skills));
+      params.append("min_salary", minSalary);
+      params.append("page", nextPage);
+
+      loadMoreBtn.disabled = true;
+      loadingSpinner.classList.remove('hidden');
+
+      try {
+        const response = await fetch(`/load_more?${params.toString()}`);
+        const newJobs = await response.json();
+
+        if (newJobs.length === 0) {
+          alert('No more jobs found');
+          loadMoreBtn.style.display = 'none';
+          return;
+        }
+
+        newJobs.forEach(job => {
+            const jobId = job.id || `job-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            const jobDetailsDecoded = job.job_details;
+
+
+            const scoreText = job.score != null ? Math.round(job.score) : "N/A";
+            const strokeColor = job.score == null
+                ? "gray"
+                : job.score < 40
+                    ? "red"
+                    : job.score < 70
+                        ? "orange"
+                        : "green";
+            const dashOffset = job.score == null
+                ? 100
+                : 100 - Math.round(job.score);
+
+            const jobItem = document.createElement('li');
+            jobItem.className = 'job-item';
+
+            jobItem.innerHTML = `
+                <div class="job-header">
+                    <strong>${job.title}</strong> at ${job.company}<br />
+                    <em>${job.location}</em>
+                    <span class="salary">${job.salary}</span>
+
+                    <div class="score-circle" aria-label="Job match score: ${scoreText} percent">
+                        <svg viewBox="0 0 36 36" role="img" aria-hidden="true" focusable="false">
+                            <circle class="bg" cx="18" cy="18" r="16"></circle>
+                            <circle
+                                class="fg"
+                                cx="18"
+                                cy="18"
+                                r="16"
+                                stroke="${strokeColor}"
+                                stroke-dasharray="100, 100"
+                                stroke-dashoffset="${dashOffset}"
+                            ></circle>
+                        </svg>
+                        <div class="score-text">${scoreText}</div>
+                    </div>
+                </div>
+
+                <div class="job-details-wrapper">
+                    <div class="job-detail">
+                        <i class="icon education-icon"></i>
+                        <span>${job.education_requirement || 'N/A'}</span>
+                    </div>
+                    <div class="job-detail">
+                        <i class="icon visa-icon"></i>
+                        <span>${job.visa_requirement || 'N/A'}</span>
+                    </div>
+                </div>
+
+                <a href="${job.url}" target="_blank" rel="noopener noreferrer" class="apply-btn">Apply Now</a>
+                <button class="view-details-btn" data-job-id="${jobId}">View Details</button>
+                <div class="job-details" id="details-${jobId}" style="display:none;">
+                    ${jobDetailsDecoded}
+                </div>
+            `;
+
+            jobList.appendChild(jobItem);
+        });
+
+        currentPage = nextPage;
+
+        const jobCountElement = document.getElementById('job-count');
+        const totalJobs = document.querySelectorAll('.job-item').length;
+        jobCountElement.textContent = `Found ${totalJobs} jobs:`;
+
+      } catch (error) {
+        console.error('Error loading more jobs:', error);
+        alert('Error loading more jobs');
+      } finally {
+        loadMoreBtn.disabled = false;
+        loadingSpinner.classList.add('hidden');
+      }
+    });
+  }
+
+  // Toggle job details display (unchanged)
+  const jobList = document.getElementById('job-list');
+  if (jobList) {
+    jobList.addEventListener('click', (e) => {
+      const viewDetailsBtn = e.target.closest('.view-details-btn');
+      if (viewDetailsBtn) {
+        const jobId = viewDetailsBtn.getAttribute('data-job-id');
+        const jobDetails = document.getElementById(`details-${jobId}`);
+
+        if (jobDetails) {
+          const isHidden = jobDetails.style.display === 'none' || !jobDetails.style.display;
+          jobDetails.style.display = isHidden ? 'block' : 'none';
+          viewDetailsBtn.textContent = isHidden ? 'Hide Details' : 'View Details';
+        }
+      }
+    });
+  }
+});
+    </script>
+</body>
+</html>
