@@ -627,20 +627,21 @@ def extract_skills_from_text(text):
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-
-model_2 = SentenceTransformer('paraphrase-MiniLM-L3-v2')
 
 def compare_skill_lists(job_skills, user_skills):
     results = []
     scores = []
 
-    # Encode all skills first (more efficient)
-    job_embeddings = model_2.encode(job_skills, convert_to_tensor=False)
-    user_embeddings = model_2.encode(user_skills, convert_to_tensor=False)
+    # Encode and normalize embeddings
+    def normalize(vec):
+        norm = np.linalg.norm(vec)
+        return vec / norm if norm > 0 else vec
+
+    job_embeddings = [normalize(nlp(skill).vector) for skill in job_skills]
+    user_embeddings = [normalize(nlp(skill).vector) for skill in user_skills]
 
     for j_idx, js in enumerate(job_skills):
         for u_idx, us in enumerate(user_skills):
@@ -660,7 +661,7 @@ def compare_skill_lists(job_skills, user_skills):
         print(f"{js} ↔ {us} → {pct:.2f}%")
 
     avg_score = np.mean(scores)
-    raw_pct = score_to_percent(avg_score) + 40
+    raw_pct = score_to_percent(avg_score)
 
     if raw_pct > 95:
         excess = raw_pct - 95
@@ -668,7 +669,7 @@ def compare_skill_lists(job_skills, user_skills):
     else:
         avg_pct = raw_pct
 
-    return avg_pct
+    return raw_pct
 
 
 #-----------------------------------------------------------------------------------------------------------------------
