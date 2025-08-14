@@ -4,7 +4,6 @@ import random
 import json
 import html
 from fake_useragent import UserAgent
-from sentence_transformers import SentenceTransformer
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from bs4 import BeautifulSoup
@@ -546,12 +545,17 @@ def detect_visa_requirement(text):
 #-----------------------------------------FIND SKILLS-------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-import spacy
 from collections import defaultdict
 
-nlp = spacy.load(
-    "en_core_web_sm",
-)
+import spacy
+import subprocess
+import sys
+
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+    nlp = spacy.load("en_core_web_sm")
 
 def extract_skills_from_text(text):
     doc = nlp(text)
@@ -671,5 +675,8 @@ def compare_skill_lists(job_skills, user_skills):
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+import os
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Use Railway's dynamic port
+    app.run(host="0.0.0.0", port=port)
