@@ -1195,7 +1195,7 @@ hr {
                 <ul id="job-list" class="job-list">
                     {% for job in jobs %}
                         <li class="job-item">
-                            <div class="score-circle" aria-label="Job match score: {{ job.score if job.score is not none else 'N/A' }} percent">
+                            <div class="score-circle" aria-label="Job match score: {{ 'N/A' if not job.score else job.score }} percent">
                                 <svg viewBox="0 0 36 36" role="img" aria-hidden="true" focusable="false">
                                     <circle class="bg" cx="18" cy="18" r="16"></circle>
                                     <circle class="fg" cx="18" cy="18" r="16"
