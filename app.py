@@ -148,6 +148,9 @@ def index():
                     if user_skills:
                         avg_score = compare_skill_lists(job_skills, user_skills)
                         job["score"] = round(avg_score)
+                        # Treat 0 as None for display
+                        if job["score"] == 0:
+                            job["score"] = None
                     else:
                         job["score"] = None
 
@@ -207,11 +210,17 @@ def load_more():
             jd_plain_text = Markup(job['job_details']).striptags()
             job_skills = extract_skills_from_text(jd_plain_text)
             job["extracted_skills"] = job_skills
+
             if user_skills:
                 avg_score = compare_skill_lists(job_skills, user_skills)
-                job["score"] = int(round(avg_score))
+                job["score"] = round(avg_score)
+                # Treat 0 as None for display
+                if job["score"] == 0:
+                    job["score"] = None
             else:
                 job["score"] = None
+
+
         except:
             job["extracted_skills"] = []
             job["score"] = None
@@ -232,6 +241,10 @@ def get_headers():
 
 
 def format_job_description(text):
+    fallback = "No detailed description available."
+    if not text or text.strip() == "" or text.strip() == fallback:
+        return fallback
+
     text = html.unescape(text)
     text = re.sub(r"Show more.*", "", text, flags=re.DOTALL)
     text = re.sub(r"\n+", "\n", text).strip()
@@ -245,8 +258,10 @@ def format_job_description(text):
     formatted_text = str(soup)
     formatted_text = re.sub(r'\n{3,}', '\n\n', formatted_text).strip()
 
-    # Adjust trimming as needed
-    formatted_text = formatted_text[:-55]
+    # Only trim if the text is longer than 55 characters
+    if len(formatted_text) > 55:
+        formatted_text = formatted_text[:-55]
+
     return formatted_text
 
 
@@ -308,6 +323,10 @@ def fetch_salary_from_job_page(job_url):
         print(f"Error scraping salary from {job_url}: {e}")
         return "Salary not specified"
 
+
+
+
+
 def fetch_job_details_from_job_page(job_url):
     try:
         response = requests.get(job_url, headers=get_headers(), timeout=10)
@@ -319,14 +338,29 @@ def fetch_job_details_from_job_page(job_url):
         return "No detailed description available."
 
 
+
+
 def fetch_salary_and_details(link):
     try:
         salary = fetch_salary_from_job_page(link)
         job_details_raw = fetch_job_details_from_job_page(link)
-        job_details_text = BeautifulSoup(job_details_raw, 'html.parser').get_text(separator=' ', strip=True)
+
+        # Only parse with BeautifulSoup if it's actual HTML
+        if "<" in job_details_raw and ">" in job_details_raw:
+            job_details_text = BeautifulSoup(job_details_raw, 'html.parser').get_text(separator=' ', strip=True)
+        else:
+            job_details_text = job_details_raw
+
+        # Check if the description is empty or shorter than 100 words
+        if not job_details_text or len(job_details_text.split()) < 100:
+            job_details_raw = "No detailed description available."
+            job_details_text = "No detailed description available."
+
         return salary, job_details_raw, job_details_text
+
     except Exception:
-        return "Not specified", "No detailed description available.", ""
+        return "Not specified", "No detailed description available.", "No detailed description available."
+
 
 
 
